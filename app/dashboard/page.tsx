@@ -4,9 +4,10 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { FaPlus } from "react-icons/fa";
 import { CiViewTimeline } from "react-icons/ci";
+import { SignOutButton, UserButton, useUser } from '@clerk/nextjs';
 
-export default function HomePage() {
-    const [user] = useState('nateshkumar485');
+export default function Dashboard() {
+    const { user } = useUser();
 
     const data = [
         { name: 'kundan', id: '66687ba749e0dcth0abr73b1', date: '6/2/2024', surgeon: '665adad29fa97a9615864b528', boneId: 13 },
@@ -21,10 +22,12 @@ export default function HomePage() {
             <div className="bg-white rounded-lg shadow-md p-4">
                 {/* Header */}
                 <div className="flex justify-between items-center border-b pb-4">
-                    <h1 className="text-xl font-bold text-red-600">Bone Bank</h1>
-                    <div className="flex items-center space-x-4">
-                        <span className="text-sm text-gray-700">{user}</span>
-                        <button className="bg-red-500 text-white text-sm px-3 py-1 rounded hover:bg-red-600">Logout</button>
+                    <h1 className="text-xl font-bold text-red-600">Bone Bank Module</h1>
+                    <div className="flex items-center space-x-3">
+                        <h1>
+                            {user?.username}
+                        </h1>
+                        <UserButton  />
                     </div>
                 </div>
 
