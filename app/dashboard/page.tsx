@@ -1,13 +1,26 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
 import { FaPlus } from "react-icons/fa";
+import { motion } from 'framer-motion';
 import { CiViewTimeline } from "react-icons/ci";
-import { SignOutButton, UserButton, useUser } from '@clerk/nextjs';
+import { UserButton, useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function Dashboard() {
     const { user } = useUser();
+    // const { isSignedIn, isLoaded } = useUser();
+    // const router = useRouter();
+
+    // useEffect(() => {
+    //     if (isLoaded && !isSignedIn) {
+    //         router.push("/signin");
+    //     }
+    // }, [isLoaded, isSignedIn]);
+
+    // if (!isLoaded) return <div>Loading...</div>;
+    // if (!isSignedIn) return null;
 
     const data = [
         { name: 'kundan', id: '66687ba749e0dcth0abr73b1', date: '6/2/2024', surgeon: '665adad29fa97a9615864b528', boneId: 13 },
@@ -18,7 +31,13 @@ export default function Dashboard() {
     ];
 
     return (
-        <div className="min-h-screen bg-[#f7f0e8] p-6">
+        < motion.div
+            initial={{ y: -50, opacity: 0 }
+            }
+            animate={{ y: 0, opacity: 1, transition: { duration: 0.8, ease: 'easeOut' } }}
+            exit={{ y: 20, opacity: 0, transition: { duration: 0.4, ease: 'easeInOut' } }}
+            className="min-h-screen bg-[#f7f0e8] p-6"
+        >
             <div className="bg-white rounded-lg shadow-md p-4">
                 {/* Header */}
                 <div className="flex justify-between items-center border-b pb-4">
@@ -27,7 +46,7 @@ export default function Dashboard() {
                         <h1>
                             {user?.username}
                         </h1>
-                        <UserButton  />
+                        <UserButton />
                     </div>
                 </div>
 
@@ -103,6 +122,6 @@ export default function Dashboard() {
                     </table>
                 </div>
             </div>
-        </div>
+        </motion.div >
     );
 }

@@ -1,13 +1,21 @@
+'use client'
+
 import Image from 'next/image'
 import React from 'react'
 import logo from '../../../../assets/logo.png'
 import bg from '../../../../assets/bg.jpg'
 import AnimatedText from '@/components/animation/animatedText'
 import { SignUp } from '@clerk/nextjs'
+import { motion } from 'framer-motion'
 
 const page = () => {
   return (
-    <div className="relative min-h-screen w-screen ">
+    <motion.div
+      className="relative min-h-screen w-full bg-black"
+      initial={{ x: -100, opacity: 0 }}
+      animate={{ x: 0, opacity: 1, transition: { duration: 1, ease: 'easeOut' } }}
+      exit={{ x: 100, opacity: 0, transition: { duration: 0.5, ease: 'easeInOut' } }}
+    >
       {/* Background Image */}
       <Image
         src={bg}
@@ -19,7 +27,7 @@ const page = () => {
         {/* Left Side */}
         <div className="w-1/2 flex flex-col items-center pt-2">
           <Image src={logo} alt="Logo" className="w-50" />
-          <h1 className="text-3xl font-bold text-center leading-snug pt-12 ">
+          <h1 className="text-3xl font-bold text-center leading-snug pt-12">
             Welcome to <br />
             <AnimatedText text="BONE BANK MODULE!" />
           </h1>
@@ -29,7 +37,7 @@ const page = () => {
           <SignUp />
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 

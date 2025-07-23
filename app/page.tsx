@@ -1,12 +1,34 @@
+'use client';
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 import logo from '../assets/logo.png'
 import bg from '../assets/bg.jpg'
+import { motion } from 'framer-motion'
+
+// Animation Variants
+const fadeInUp = {
+  hidden: { opacity: 0, y: 60 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.8, ease: 'easeOut' as const }
+  }
+};
+
+const staggerContainer = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.3,
+      delayChildren: 0.5
+    }
+  }
+};
 
 const Page = () => {
   return (
-    <div className='relative w-full h-screen flex items-center justify-center'>
+    <div className='relative w-full h-screen flex items-center justify-center overflow-hidden'>
       {/* Background Image */}
       <Image
         src={bg}
@@ -15,40 +37,63 @@ const Page = () => {
       />
 
       {/* Overlay Content */}
-      <div className='relative flex h-full w-full'>
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={staggerContainer}
+        className='relative flex h-full w-full'
+      >
         {/* Left Section */}
-        <section className='w-1/2 flex  justify-center items-center px-12   '>
+        <motion.section
+          className='w-1/2 flex justify-center items-center px-12'
+          initial={{ scale: 0.5, rotate: -10, opacity: 0 }}
+          animate={{ scale: 1, rotate: 0, opacity: 1 }}
+          transition={{ duration: 1.2, ease: 'easeOut' }}
+        >
           <Image
             src={logo}
-            alt='Product'
+            alt='logo'
             className='w-[350px] rounded-xl object-cover'
           />
-        </section>
+        </motion.section>
 
-        {/* Right Section (Optional content) */}
-        <section className='w-1/2 flex flex-col justify-center items-center px-12 bg-black/25 text-white'>
+        {/* Right Section */}
+        <motion.section
+          className='w-1/2 flex flex-col justify-center items-center px-12 bg-black/25 text-white'
+          variants ={fadeInUp}
+        >
           <h1 className="text-5xl font-bold mb-10">Welcome</h1>
 
-          <div className="flex flex-col gap-6 w-full max-w-xs">
+          <motion.div
+            className="flex flex-col gap-6 w-full max-w-xs"
+            variants={fadeInUp}
+          >
             {/* Doctor Button */}
             <Link href="/signin">
-               <button className="w-full px-6 py-3 bg-blue-600 text-white rounded-xl text-lg font-semibold shadow-md hover:bg-blue-700 hover:scale-105 transition-all duration-200">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="w-full px-6 py-3 bg-blue-600 text-white rounded-xl text-lg font-semibold shadow-md hover:bg-blue-700 transition-all duration-200"
+              >
                 I'm a Doctor
-              </button>
+              </motion.button>
             </Link>
 
             {/* Admin Button */}
             <Link href="/signin">
-              <button className="w-full px-6 py-3 bg-green-600 text-white rounded-xl text-lg font-semibold shadow-md hover:bg-green-700 hover:scale-105 transition-all duration-200">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="w-full px-6 py-3 bg-green-600 text-white rounded-xl text-lg font-semibold shadow-md hover:bg-green-700 transition-all duration-200"
+              >
                 I'm an Administrator
-              </button>
+              </motion.button>
             </Link>
-          </div>
-        </section>
-
-      </div>
+          </motion.div>
+        </motion.section>
+      </motion.div>
     </div>
-  )
-}
+  );
+};
 
-export default Page
+export default Page;

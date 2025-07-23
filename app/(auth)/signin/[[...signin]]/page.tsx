@@ -1,13 +1,21 @@
+'use client'
+
 import Image from 'next/image'
 import React from 'react'
 import logo from '../../../../assets/logo.png'
 import bg from '../../../../assets/bg.jpg'
 import AnimatedText from '@/components/animation/animatedText'
 import { SignIn } from '@clerk/nextjs'
+import { motion } from 'framer-motion'
 
 const page = () => {
   return (
-    <div className="relative min-h-screen w-screen ">
+    <motion.div
+      className="relative min-h-screen w-screen bg-black"
+      initial={{ x: -100, opacity: 0 }}
+      animate={{ x: 0, opacity: 1, transition: { duration: 1, ease: 'easeOut' } }}
+      exit={{ x: 100, opacity: 0, transition: { duration: 0.5, ease: 'easeInOut' } }}
+    >
       {/* Background Image */}
       <Image
         src={bg}
@@ -29,7 +37,7 @@ const page = () => {
           <SignIn />
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
