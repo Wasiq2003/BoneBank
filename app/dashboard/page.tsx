@@ -5,30 +5,30 @@ import { FaPlus } from "react-icons/fa";
 import { motion } from 'framer-motion';
 import { CiViewTimeline } from "react-icons/ci";
 import { UserButton, useUser } from '@clerk/nextjs';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { api } from '@/convex/_generated/api';
+import { useQuery } from 'convex/react';
 
 export default function Dashboard() {
     const { user } = useUser();
-    // const { isSignedIn, isLoaded } = useUser();
-    // const router = useRouter();
+    const patients = useQuery(api.patients.getAllPatients)
 
-    // useEffect(() => {
-    //     if (isLoaded && !isSignedIn) {
-    //         router.push("/signin");
-    //     }
-    // }, [isLoaded, isSignedIn]);
+    if (patients === undefined) {
+        return (
+            <div className="flex items-center justify-center p-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                <span className="ml-2">Loading patients...</span>
+            </div>
+        );
+    }
 
-    // if (!isLoaded) return <div>Loading...</div>;
-    // if (!isSignedIn) return null;
-
-    const data = [
-        { name: 'kundan', id: '66687ba749e0dcth0abr73b1', date: '6/2/2024', surgeon: '665adad29fa97a9615864b528', boneId: 13 },
-        { name: 'malik', id: '66687ae749e0dcth0abr73c1', date: '6/4/2024', surgeon: '665adad29fa97a9615864b528', boneId: 15 },
-        { name: 'umer', id: '66687ad749e0dcth0abr73c3', date: '6/5/2024', surgeon: '665adad29fa97a9615864b528', boneId: 16 },
-        { name: 'haseeb', id: '66687a2e749e0dcth0abr73c7', date: '6/6/2024', surgeon: '665adad29fa97a9615864b528', boneId: 17 },
-        { name: 'ahmed', id: '66687e67e9dcth0abr73c9', date: '6/8/2024', surgeon: '665adad29fa97a9615864b528', boneId: 18 },
-    ];
+    // Handle empty state
+    if (patients.length === 0) {
+        return (
+            <div className="flex items-center justify-center p-8 text-gray-500">
+                No patient records found
+            </div>
+        );
+    }
 
     return (
         < motion.div
@@ -94,14 +94,24 @@ export default function Dashboard() {
                         <thead className="bg-gray-100 text-left">
                             <tr>
                                 <th className="p-2 border">ID</th>
-                                <th className="p-2 border">Recipient Name</th>
-                                <th className="p-2 border">Options</th>
-                                <th className="p-2 border">Date Of Surgery</th>
-                                <th className="p-2 border">Consultant Surgeon</th>
-                                <th className="p-2 border">Bone ID</th>
+                                <th className="p-2 border">Patient Name</th>
+                                <th className="p-2 border">CNIC No</th>
+                                <th className="p-2 border">Medical Record No</th>
+                                <th className="p-2 border">Date Of Birth</th>
+                                <th className="p-2 border">Age</th>
+                                <th className="p-2 border">Gender</th>
+                                <th className="p-2 border">Guardian Name</th>
+                                <th className="p-2 border">Ph No</th>
+                                <th className="p-2 border">Admission Date</th>
+                                <th className="p-2 border">Surgery Date</th>
+                                <th className="p-2 border">Procedure Undertaken</th>
+                                <th className="p-2 border">Femoral Head</th>
+                                <th className="p-2 border">Knee Replacement</th>
+                                <th className="p-2 border">Other Bone</th>
+                                <th className="p-2 border">Tissue</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        {/* <tbody>
                             {data.map((entry, index) => (
                                 <tr key={index} className="bg-white hover:bg-gray-50">
                                     <td className="p-2 border">{index + 1}</td>
@@ -116,6 +126,38 @@ export default function Dashboard() {
                                     <td className="p-2 border">{entry.date}</td>
                                     <td className="p-2 border">{entry.surgeon}</td>
                                     <td className="p-2 border">{entry.boneId}</td>
+                                </tr>
+                            ))}
+                        </tbody> */}
+                        <tbody>
+                            {patients.map((patient, index) => (
+                                <tr key={patient._id} className="bg-white hover:bg-gray-50">
+                                    <td className="p-2 border">{index + 1}</td>
+                                    <td className="p-2 border">
+                                        {patient.pName}
+                                        <br />
+                                        <span className="text-xs text-gray-500">{patient._id}</span>
+                                    </td>
+                                    <td className="p-2 border">{patient.cnicNo}</td>
+                                    <td className="p-2 border">{patient.medicalRecordNo}</td>
+                                    <td className="p-2 border">
+                                        {new Date(patient.dateOfBirth).toLocaleDateString()}
+                                    </td>
+                                    <td className="p-2 border">{patient.age}</td>
+                                    <td className="p-2 border">{patient.gender}</td>
+                                    <td className="p-2 border">{patient.guardianName}</td>
+                                    <td className="p-2 border">{patient.contact}</td>
+                                    <td className="p-2 border">
+                                        {new Date(patient.admissionDate).toLocaleDateString()}
+                                    </td>
+                                    <td className="p-2 border">
+                                        {new Date(patient.surgeryDate).toLocaleDateString()}
+                                    </td>
+                                    <td className="p-2 border">{patient.procedureUnderTaken}</td>
+                                    <td className="p-2 border">{patient.femoralHead}</td>
+                                    <td className="p-2 border">{patient.kneeReplacementCuts}</td>
+                                    <td className="p-2 border">{patient.otherBone || "-"}</td>
+                                    <td className="p-2 border">{patient.tissue || "-"}</td>
                                 </tr>
                             ))}
                         </tbody>

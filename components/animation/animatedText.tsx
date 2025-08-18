@@ -3,17 +3,17 @@ import React from 'react'
 import { motion, Variants } from "framer-motion"
 
 type MotionProps = {
-  text: string;
-  
+    text: string;
+
 };
 
 const AnimatedText = ({ text }: MotionProps) => {
     const letters = Array.from(text);
     const container = {
-        hidden: {opacity: 0},
-        visible: (i=1) => ({
+        hidden: { opacity: 0 },
+        visible: (i = 1) => ({
             opacity: 1,
-            transition: {staggerChildren: 0.30, delayChildren: 0.04 * i},
+            transition: { staggerChildren: 0.30, delayChildren: 0.04 * i },
         })
     }
     const child: Variants = {
@@ -38,24 +38,24 @@ const AnimatedText = ({ text }: MotionProps) => {
             }
         }
     }
-  return (
-    <>
-    <motion.div
-    className="text-blue-900"
-    style={{ overflow: "hidden", display: "flex", fontSize: "2rem"}}
-    variants={container}
-    initial = "hidden"
-    animate = "visible"
-    >
-        {letters.map((letter, index) => (
-            <motion.span variants={child} key={index} >
-                {letter === " " ? "\u00A0" : letter}
-            </motion.span>
-        ))}
+    return (
 
-    </motion.div>
-    </>
-  )
+        <motion.div
+            className="text-blue-900"
+            style={{ overflow: "hidden", display: "flex", fontSize: "2rem" }}
+            variants={container}
+            initial="hidden"
+            animate="visible"
+        >
+            {letters.map((letter, index) => (
+                <motion.span variants={child} key={index} >
+                    {letter === " " ? "\u00A0" : letter}
+                </motion.span>
+            ))}
+
+        </motion.div>
+
+    )
 }
 
 export default AnimatedText
