@@ -1,16 +1,65 @@
-'use client';
-
+"use client";
 import Link from 'next/link';
-import { FaPlus } from "react-icons/fa";
-import { motion } from 'framer-motion';
+import { FaPlus, FaTrash } from "react-icons/fa"; 
+import { motion, AnimatePresence } from 'framer-motion'; 
 import { CiViewTimeline } from "react-icons/ci";
 import { UserButton, useUser } from '@clerk/nextjs';
 import { api } from '@/convex/_generated/api';
-import { useQuery } from 'convex/react';
+import { useQuery, useMutation } from 'convex/react'; 
+import { useState, useRef, useEffect } from 'react'; 
+import { toast } from 'sonner'; 
+import { Id } from '@/convex/_generated/dataModel'; 
 
 export default function Dashboard() {
     const { user } = useUser();
-    const patients = useQuery(api.patients.getAllPatients)
+    const patients = useQuery(api.patients.getAllPatients);
+    const deletePatient = useMutation(api.patients.deletePatient);
+    const [showActionColumn, setShowActionColumn] = useState(false); 
+    const [deletingId, setDeletingId] = useState<Id<"patients"> | null>(null);
+    const tableRef = useRef<HTMLTableElement>(null); //
+
+    useEffect(() => {
+        const handleContextMenu = (e: MouseEvent) => {
+            e.preventDefault();
+        };
+
+        document.addEventListener('contextmenu', handleContextMenu);
+        return () => document.removeEventListener('contextmenu', handleContextMenu);
+    }, []);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (tableRef.current && !tableRef.current.contains(event.target as Node)) {
+                setShowActionColumn(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const handleTableRightClick = (event: React.MouseEvent) => {
+        event.preventDefault();
+        setShowActionColumn(true);
+    };
+
+    const handleDelete = async (id: Id<"patients">, patientName: string) => {
+        if (!confirm(`Are you sure you want to delete ${patientName}? This action cannot be undone.`)) {
+            return;
+        }
+
+        setDeletingId(id);
+        try {
+            await deletePatient({ id });
+            toast.success("Patient record deleted successfully!");
+            setShowActionColumn(false);
+        } catch (error) {
+            toast.error("Failed to delete patient record");
+            console.error(error);
+        } finally {
+            setDeletingId(null);
+        }
+    };
 
     if (patients === undefined) {
         return (
@@ -21,7 +70,6 @@ export default function Dashboard() {
         );
     }
 
-    // Handle empty state
     if (patients.length === 0) {
         return (
             <div className="flex items-center justify-center p-8 text-gray-500">
@@ -31,9 +79,8 @@ export default function Dashboard() {
     }
 
     return (
-        < motion.div
-            initial={{ y: -50, opacity: 0 }
-            }
+        <motion.div 
+            initial={{ y: -50, opacity: 0 }}
             animate={{ y: 0, opacity: 1, transition: { duration: 0.8, ease: 'easeOut' } }}
             exit={{ y: 20, opacity: 0, transition: { duration: 0.4, ease: 'easeInOut' } }}
             className="min-h-screen bg-[#f7f0e8] p-6"
@@ -89,9 +136,12 @@ export default function Dashboard() {
                 </div>
 
                 {/* Table */}
-                <div className="overflow-x-auto mt-6">
-                    <table className="w-full text-sm border">
-                        <thead className="bg-gray-100 text-left">
+                <div className="overflow-x-auto mt-6" ref={tableRef}>
+                    <motion.table
+                        className="w-full text-sm border text-center"
+                        onContextMenu={handleTableRightClick}
+                    >
+                        <thead className="bg-gray-100 text-center">
                             <tr>
                                 <th className="p-2 border">ID</th>
                                 <th className="p-2 border">Patient Name</th>
@@ -109,29 +159,27 @@ export default function Dashboard() {
                                 <th className="p-2 border">Knee Replacement</th>
                                 <th className="p-2 border">Other Bone</th>
                                 <th className="p-2 border">Tissue</th>
+                                <AnimatePresence>
+                                    {showActionColumn && (
+                                        <motion.th
+                                            className="p-2 border bg-red-100 w-20"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                        >
+                                            Action
+                                        </motion.th>
+                                    )}
+                                </AnimatePresence>
                             </tr>
                         </thead>
-                        {/* <tbody>
-                            {data.map((entry, index) => (
-                                <tr key={index} className="bg-white hover:bg-gray-50">
-                                    <td className="p-2 border">{index + 1}</td>
-                                    <td className="p-2 border">
-                                        {entry.name}
-                                        <br />
-                                        <span className="text-xs text-gray-500">{entry.id}</span>
-                                    </td>
-                                    <td className="p-2 border">
-                                        <button className="border px-3 py-1 rounded">Options ▾</button>
-                                    </td>
-                                    <td className="p-2 border">{entry.date}</td>
-                                    <td className="p-2 border">{entry.surgeon}</td>
-                                    <td className="p-2 border">{entry.boneId}</td>
-                                </tr>
-                            ))}
-                        </tbody> */}
                         <tbody>
                             {patients.map((patient, index) => (
-                                <tr key={patient._id} className="bg-white hover:bg-gray-50">
+                                <tr
+                                    key={patient._id}
+                                    className="bg-white hover:bg-gray-50 items-center justify-center"
+                                    onClick={() => setShowActionColumn(false)}
+                                >
                                     <td className="p-2 border">{index + 1}</td>
                                     <td className="p-2 border">
                                         {patient.pName}
@@ -158,10 +206,32 @@ export default function Dashboard() {
                                     <td className="p-2 border">{patient.kneeReplacementCuts}</td>
                                     <td className="p-2 border">{patient.otherBone || "-"}</td>
                                     <td className="p-2 border">{patient.tissue || "-"}</td>
+                                    <AnimatePresence>
+                                        {showActionColumn && (
+                                            <motion.td
+                                                className="p-2 border bg-red-50"
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                            >
+                                                <button
+                                                    onClick={() => handleDelete(patient._id as Id<"patients">, patient.pName)}
+                                                    disabled={deletingId === patient._id}
+                                                    className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full mx-auto flex items-center justify-center w-8 h-8 disabled:opacity-50"
+                                                    title="Delete patient record"
+                                                >
+                                                    <FaTrash size={10} />
+                                                </button>
+                                            </motion.td>
+                                        )}
+                                    </AnimatePresence>
                                 </tr>
                             ))}
                         </tbody>
-                    </table>
+                    </motion.table>
+                </div>
+                <div className="text-xs text-gray-500 text-center mt-4">
+                    💡 Right-click anywhere on the table to reveal delete options
                 </div>
             </div>
         </motion.div >
