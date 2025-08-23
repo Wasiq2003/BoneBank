@@ -1,22 +1,34 @@
 "use client";
 import Link from 'next/link';
-import { FaPlus, FaTrash } from "react-icons/fa"; 
-import { motion, AnimatePresence } from 'framer-motion'; 
+import { FaPlus, FaTrash } from "react-icons/fa";
+import { motion, AnimatePresence } from 'framer-motion';
 import { CiViewTimeline } from "react-icons/ci";
 import { UserButton, useUser } from '@clerk/nextjs';
 import { api } from '@/convex/_generated/api';
-import { useQuery, useMutation } from 'convex/react'; 
-import { useState, useRef, useEffect } from 'react'; 
-import { toast } from 'sonner'; 
-import { Id } from '@/convex/_generated/dataModel'; 
+import { useQuery, useMutation } from 'convex/react';
+import { useState, useRef, useEffect } from 'react';
+import { toast } from 'sonner';
+import { Id } from '@/convex/_generated/dataModel';
+import { useRouter, useSearchParams } from 'next/navigation';
+
+type UserRole = 'admin' | 'doctor' | undefined;
 
 export default function Dashboard() {
-    const { user } = useUser();
+    const { user, isLoaded } = useUser();
+    const router = useRouter();
     const patients = useQuery(api.patients.getAllPatients);
     const deletePatient = useMutation(api.patients.deletePatient);
-    const [showActionColumn, setShowActionColumn] = useState(false); 
+    const [showActionColumn, setShowActionColumn] = useState(false);
     const [deletingId, setDeletingId] = useState<Id<"patients"> | null>(null);
-    const tableRef = useRef<HTMLTableElement>(null); //
+    const tableRef = useRef<HTMLTableElement>(null);
+
+
+
+    useEffect(() => {
+        if (isLoaded && !user) {
+            router.push('/');
+        }
+    }, [isLoaded, user, router]);
 
     useEffect(() => {
         const handleContextMenu = (e: MouseEvent) => {
@@ -38,12 +50,33 @@ export default function Dashboard() {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    if (!isLoaded || !user) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+                <span className="ml-2">Loading...</span>
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-gray-100">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Redirecting to sign in...</p>
+                </div>
+            </div>
+        );
+    }
+
     const handleTableRightClick = (event: React.MouseEvent) => {
         event.preventDefault();
         setShowActionColumn(true);
-    };
 
+    };
     const handleDelete = async (id: Id<"patients">, patientName: string) => {
+
         if (!confirm(`Are you sure you want to delete ${patientName}? This action cannot be undone.`)) {
             return;
         }
@@ -79,7 +112,7 @@ export default function Dashboard() {
     }
 
     return (
-        <motion.div 
+        <motion.div
             initial={{ y: -50, opacity: 0 }}
             animate={{ y: 0, opacity: 1, transition: { duration: 0.8, ease: 'easeOut' } }}
             exit={{ y: 20, opacity: 0, transition: { duration: 0.4, ease: 'easeInOut' } }}
@@ -98,6 +131,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Buttons */}
+
                 <div className="flex justify-center gap-24 mt-6">
                     <button className=" bg-red-500 text-white px-4 py-2 rounded  hover:bg-red-800">
                         <Link href={'/userform'} className=' flex gap-x-2 items-center'>
@@ -105,19 +139,23 @@ export default function Dashboard() {
                             Add Graft
                         </Link>
                     </button>
+
                     <button className=" bg-red-500 text-white px-4 py-2 rounded hover:bg-red-800">
                         <Link href={''} className=' flex gap-x-2 items-center'>
                             <span><FaPlus /></span>
                             Add Recipient
                         </Link>
                     </button>
+
                     <button className=" bg-red-500 text-white px-4 py-2 rounded hover:bg-red-800">
                         <Link href={''} className=' flex gap-x-2 items-center'>
                             <span><CiViewTimeline /></span>
                             Show Grafts
                         </Link>
                     </button>
+
                 </div>
+
 
                 {/* Summary Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 text-white font-semibold text-center">

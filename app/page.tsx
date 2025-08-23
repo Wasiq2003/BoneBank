@@ -5,6 +5,7 @@ import React from 'react'
 import logo from '../assets/logo.png'
 import bg from '../assets/bg.jpg'
 import { motion } from 'framer-motion'
+import { useRouter } from 'next/navigation';
 
 // Animation Variants
 const fadeInUp = {
@@ -27,6 +28,9 @@ const staggerContainer = {
 };
 
 const Page = () => {
+  const router = useRouter();
+
+
   return (
     <div className='relative w-full h-screen flex items-center justify-center overflow-hidden'>
       {/* Background Image */}
@@ -60,7 +64,7 @@ const Page = () => {
         {/* Right Section */}
         <motion.section
           className='w-1/2 flex flex-col justify-center items-center px-12 bg-black/25 text-white'
-          variants ={fadeInUp}
+          variants={fadeInUp}
         >
           <h1 className="text-5xl font-bold mb-10">Welcome</h1>
 
@@ -69,26 +73,28 @@ const Page = () => {
             variants={fadeInUp}
           >
             {/* Doctor Button */}
-            <Link href="/signin">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full px-6 py-3 bg-blue-600 text-white rounded-xl text-lg font-semibold shadow-md hover:bg-blue-700 transition-all duration-200"
-              >
-                I'm a Doctor
-              </motion.button>
-            </Link>
+
+            <motion.button
+              onClick={() => router.push('/signin')}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full px-6 py-3 bg-blue-600 text-white rounded-xl text-lg font-semibold shadow-md hover:bg-blue-700 transition-all duration-200"
+            >
+
+              I'm a Doctor
+            </motion.button>
+
 
             {/* Admin Button */}
-            <Link href="/signin">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full px-6 py-3 bg-green-600 text-white rounded-xl text-lg font-semibold shadow-md hover:bg-green-700 transition-all duration-200"
-              >
-                I'm an Administrator
-              </motion.button>
-            </Link>
+            <motion.button
+              onClick={() => router.push('/signin')}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full px-6 py-3 bg-green-600 text-white rounded-xl text-lg font-semibold shadow-md hover:bg-green-700 transition-all duration-200"
+            >
+              I'm an Administrator
+            </motion.button>
+
           </motion.div>
         </motion.section>
       </motion.div>
